@@ -32,6 +32,10 @@ purpose: cleint-side for image processing
         <button type="button" id="colorGreyButton">color into grey</button>
     </form>
 
+    <form id="rigthRotatingForm">
+        <button type="button" id="rightRotatingButton">right-rotating in 90 degrees</button>
+    </form>
+
     <form id="openAPIForm">
         <button type="button" id="openAPIbutton">openAPI Live Documentation</button>
     </form>
@@ -103,6 +107,26 @@ purpose: cleint-side for image processing
     document.getElementById('colorGreyButton').addEventListener('click', function() {
         const imageSrc = document.getElementById('displayedImage').src;
         fetch('/colorToGrey', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ imageData: imageSrc }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.imageUrl) {
+                document.getElementById('displayedImage').src = data.imageUrl;
+            } else {
+                console.error('Error:', data.error);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+
+    document.getElementById('rightRotatingButton').addEventListener('click', function() {
+        const imageSrc = document.getElementById('displayedImage').src;
+        fetch('/rightRotating', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
