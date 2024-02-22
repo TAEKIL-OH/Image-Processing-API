@@ -198,6 +198,30 @@ purpose: cleint-side for image processing
         .catch(error => console.error('Error:', error));
     });
 
+    document.getElementById('angleRotatingButton').addEventListener('click', function() {
+        const imageSrc = document.getElementById('displayedImage').src;
+        const angle = document.getElementById('angleInput').value; // get the user input 
+        fetch('/angleRotating', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                imageData: imageSrc,
+                rotationAngle: angle // pass the angle
+             }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.imageUrl) {
+                document.getElementById('displayedImage').src = data.imageUrl;
+            } else {
+                console.error('Error:', data.error);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+
     document.getElementById('openAPIbutton').addEventListener('click', function() {
     window.open('http://localhost:3000/openapi-docs', '_blank');
     });
