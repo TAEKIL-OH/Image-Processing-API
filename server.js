@@ -128,6 +128,34 @@ app.post('/colorToGrey', express.json({limit: '50mb'}), (req, res) => {
 });
 
 
+// right rotating into 90 degree
+app.post('/rightRotating', express.json({limit: '50mb'}), (req, res) => {
+    const imageData = req.body.imageData;
+    const imageType = req.body.imageType;
+    if (imageData) {
+        // Extract the Base64 encoded image data from the imageData string
+        const base64Data = imageData.split(';base64,').pop();
+        const buffer = Buffer.from(base64Data, 'base64');
+
+        sharp(buffer)
+            .rotate(90) // rorate the image 90 degrees to the right
+            .toBuffer()
+            .then(flippedBuffer => {
+                // Convert flipped image buffer to Base64
+                const imgBase64 = flippedBuffer.toString('base64');
+                const imageSrc = `data:${imageType};base64,${imgBase64}`;
+                res.json({ imageUrl: imageSrc });
+            })
+            .catch(err => {
+                console.error('Error processing image:', err);
+                res.status(500).send('Error processing image');
+            });
+    } else {
+        // Handle case where there is no image data in the request
+        res.status(400).json({error: "No image data provided."});
+    }
+});
+
 
 app.listen(3000, () => console.log('Server Started on http://localhost:3000'));
 
