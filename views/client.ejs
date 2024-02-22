@@ -1,0 +1,130 @@
+<!--
+Taekil Oh
+FEb 20 2024
+client.ejs
+purpose: cleint-side for image processing
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Upload and Display Image without Saving</title>
+</head>
+
+<body>
+    <h2>Upload Image</h2>
+
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" name="image" id="imageInput" required>
+        <button type="button" id="uploadButton">Upload Image</button>
+    </form>
+    
+    <form id="verticalFlipForm">
+        <button type="button" id="verticalFlipButton">Flip in vertical</button>
+    </form>
+
+    <form id="horizontalFlipForm">
+        <button type="button" id="horizontalFlipButton">Flip in horizontal</button>
+    </form>
+
+    <form id="colorGreyForm">
+        <button type="button" id="colorGreyButton">color into grey</button>
+    </form>
+
+    <form id="openAPIForm">
+        <button type="button" id="openAPIbutton">openAPI Live Documentation</button>
+    </form>
+
+    <img id="displayedImage" alt="Uploaded Image" style="display:none;">
+</body>
+
+<script>
+    document.getElementById('uploadButton').addEventListener('click', function() {
+        var formData = new FormData();
+        formData.append('image', document.getElementById('imageInput').files[0]);
+
+        fetch('/upload', {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.imageUrl) {
+                document.getElementById('displayedImage').src = data.imageUrl;
+                document.getElementById('displayedImage').style.display = 'block';
+            } else {
+                console.error('Error:', data.error);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+
+    document.getElementById('verticalFlipButton').addEventListener('click', function() {
+        const imageSrc = document.getElementById('displayedImage').src;
+        fetch('/verticalFlip', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ imageData: imageSrc }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.imageUrl) {
+                document.getElementById('displayedImage').src = data.imageUrl;
+            } else {
+                console.error('Error:', data.error);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+    
+    document.getElementById('horizontalFlipButton').addEventListener('click', function() {
+        const imageSrc = document.getElementById('displayedImage').src;
+        fetch('/horizontalFlip', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ imageData: imageSrc }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.imageUrl) {
+                document.getElementById('displayedImage').src = data.imageUrl;
+            } else {
+                console.error('Error:', data.error);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+
+    document.getElementById('colorGreyButton').addEventListener('click', function() {
+        const imageSrc = document.getElementById('displayedImage').src;
+        fetch('/colorToGrey', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ imageData: imageSrc }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.imageUrl) {
+                document.getElementById('displayedImage').src = data.imageUrl;
+            } else {
+                console.error('Error:', data.error);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+
+    document.getElementById('openAPIbutton').addEventListener('click', function() {
+    window.open('http://localhost:3000/openapi-docs', '_blank');
+});
+
+</script>
+
+</html>
+
