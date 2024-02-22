@@ -40,6 +40,10 @@ purpose: cleint-side for image processing
         <button type="button" id="leftRotatingButton">left-rotating in 90 degrees</button>
     </form>
 
+    <form id="thumbnailForm">
+        <button type="button" id="thumbnailingButton">generating thumbnail</button>
+    </form>
+
     <form id="openAPIForm">
         <button type="button" id="openAPIbutton">openAPI Live Documentation</button>
     </form>
@@ -151,6 +155,26 @@ purpose: cleint-side for image processing
     document.getElementById('leftRotatingButton').addEventListener('click', function() {
         const imageSrc = document.getElementById('displayedImage').src;
         fetch('/leftRotating', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ imageData: imageSrc }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.imageUrl) {
+                document.getElementById('displayedImage').src = data.imageUrl;
+            } else {
+                console.error('Error:', data.error);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+
+    document.getElementById('thumbnailingButton').addEventListener('click', function() {
+        const imageSrc = document.getElementById('displayedImage').src;
+        fetch('/generatingThumbnail', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
