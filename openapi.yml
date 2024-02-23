@@ -7,7 +7,7 @@ servers:
 paths:
   /resizeUpload:
     post:
-      summary: Upload and resize an image.
+      summary: Upload an image.
       requestBody:
         content:
           multipart/form-data:
@@ -19,7 +19,7 @@ paths:
                   format: binary
       responses:
         '200':
-          description: Successfully resized and saved the image.
+          description: Successfully uploaded the image.
           content:
             application/json:
               schema:
@@ -27,29 +27,11 @@ paths:
                 properties:
                   imageName:
                     type: string
-                    example: resizeUpload_1611234567890.jpg
+                    example: 
         '500':
           description: Internal Server Error
 
-  /listFiles:
-    get:
-      summary: List all uploaded image files.
-      responses:
-        '200':
-          description: Successfully retrieved the list of image files.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  files:
-                    type: array
-                    items:
-                      type: string
-        '500':
-          description: Internal Server Error
-
-  /verticalFlipImage:
+  /verticalFlip:
     get:
       summary: Flip an image vertically.
       parameters:
@@ -73,7 +55,7 @@ paths:
         '500':
           description: Internal Server Error
 
-  /horizontalFlipImage:
+  /horizontalFlip:
     get:
       summary: Flip an image horizontally.
       parameters:
@@ -97,53 +79,6 @@ paths:
         '500':
           description: Internal Server Error
 
-  /convertingToGrey:
-    get:
-      summary: Convert an image to greyscale.
-      parameters:
-        - in: query
-          name: imageName
-          schema:
-            type: string
-          required: true
-          description: The name of the image to be converted.
-      responses:
-        '200':
-          description: Successfully converted the image to greyscale.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  convertedToGrey:
-                    type: string
-                    example: grey_1611234567890.jpg
-        '500':
-          description: Internal Server Error
-
-  /generatingThumbnail:
-    get:
-      summary: Generate a thumbnail for an image.
-      parameters:
-        - in: query
-          name: imageName
-          schema:
-            type: string
-          required: true
-          description: The name of the image to generate a thumbnail for.
-      responses:
-        '200':
-          description: Successfully generated a thumbnail.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  thumbnail:
-                    type: string
-                    example: thumbnail_1611234567890.jpg
-        '500':
-          description: Internal Server Error
 
   /leftRotating:
     get:
@@ -190,5 +125,29 @@ paths:
                   rightRotated:
                     type: string
                     example: right_rotated_1611234567890.jpg
+        '500':
+          description: Internal Server Error
+
+  /generatingThumbnail:
+    get:
+      summary: Generate a thumbnail for an image.
+      parameters:
+        - in: query
+          name: imageName
+          schema:
+            type: string
+          required: true
+          description: The name of the image to generate a thumbnail for.
+      responses:
+        '200':
+          description: Successfully generated a thumbnail.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  thumbnail:
+                    type: string
+                    example: thumbnail_1611234567890.jpg
         '500':
           description: Internal Server Error
