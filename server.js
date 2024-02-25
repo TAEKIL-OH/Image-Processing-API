@@ -185,7 +185,7 @@ app.post('/leftRotating', express.json({limit: '50mb'}), (req, res) => {
 });
 
 // Generating thumbnail
-// thumbnail size: 100 * 100 
+// thumbnail size: 200 * 200 
 app.post('/generatingThumbnail', express.json({limit: '50mb'}), (req, res) => {
     const imageData = req.body.imageData;
     const imageType = req.body.imageType;
@@ -195,7 +195,7 @@ app.post('/generatingThumbnail', express.json({limit: '50mb'}), (req, res) => {
         const buffer = Buffer.from(base64Data, 'base64');
 
         sharp(buffer)
-            .resize(100, 100)
+            .resize(200, 200)
             .toBuffer()
             .then(thumbnailBuffer => {
                 // Convert flipped image buffer to Base64
