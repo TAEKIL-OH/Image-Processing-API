@@ -20,6 +20,18 @@ purpose: cleint-side for image processing
         <button type="button" id="uploadButton">Upload Image</button>
     </form>
     
+    <!-- Container for images -->
+    <div id="imageContainer">
+        <!-- Original Image -->
+        <img id="displayedImage" alt="Uploaded Image" style="display:none;">
+
+        <!-- Thumbnail Image (if generated) will be inserted here -->
+        <div id="thumbnailContainer">
+            <img id="thumbnailImage" alt="Thumbnail Image" style="display:none;">
+            <p id="thumbnailMessage" style="display:none;">No thumbnail yet</p>
+        </div>    
+    </div>
+
     <form id="verticalFlipForm">
         <button type="button" id="verticalFlipButton">Flip in vertical</button>
     </form>
@@ -54,10 +66,9 @@ purpose: cleint-side for image processing
         <button type="button" id="openAPIbutton">openAPI Live Documentation</button>
     </form>
 
-    <img id="displayedImage" alt="Uploaded Image" style="display:none;">
-</body>
-
 <script>
+
+    // image uploading
     document.getElementById('uploadButton').addEventListener('click', function() {
         var formData = new FormData();
         formData.append('image', document.getElementById('imageInput').files[0]);
@@ -78,6 +89,7 @@ purpose: cleint-side for image processing
         .catch(error => console.error('Error:', error));
     });
 
+    // up-down flip
     document.getElementById('verticalFlipButton').addEventListener('click', function() {
         const imageSrc = document.getElementById('displayedImage').src;
         fetch('/verticalFlip', {
@@ -98,6 +110,7 @@ purpose: cleint-side for image processing
         .catch(error => console.error('Error:', error));
     });
     
+    // left-right flip
     document.getElementById('horizontalFlipButton').addEventListener('click', function() {
         const imageSrc = document.getElementById('displayedImage').src;
         fetch('/horizontalFlip', {
@@ -118,6 +131,7 @@ purpose: cleint-side for image processing
         .catch(error => console.error('Error:', error));
     });
 
+    // converting to grey
     document.getElementById('colorGreyButton').addEventListener('click', function() {
         const imageSrc = document.getElementById('displayedImage').src;
         fetch('/colorToGrey', {
@@ -138,6 +152,7 @@ purpose: cleint-side for image processing
         .catch(error => console.error('Error:', error));
     });
 
+    // + 90 angle rotating generating
     document.getElementById('rightRotatingButton').addEventListener('click', function() {
         const imageSrc = document.getElementById('displayedImage').src;
         fetch('/rightRotating', {
@@ -158,6 +173,7 @@ purpose: cleint-side for image processing
         .catch(error => console.error('Error:', error));
     });
 
+    // - 90 angle rotating generating
     document.getElementById('leftRotatingButton').addEventListener('click', function() {
         const imageSrc = document.getElementById('displayedImage').src;
         fetch('/leftRotating', {
@@ -178,6 +194,8 @@ purpose: cleint-side for image processing
         .catch(error => console.error('Error:', error));
     });
 
+    // thumbnail generating
+    // thumbnail generating
     document.getElementById('thumbnailingButton').addEventListener('click', function() {
         const imageSrc = document.getElementById('displayedImage').src;
         fetch('/generatingThumbnail', {
@@ -189,15 +207,21 @@ purpose: cleint-side for image processing
         })
         .then(response => response.json())
         .then(data => {
-            if(data.imageUrl) {
-                document.getElementById('displayedImage').src = data.imageUrl;
+            if (data.thumbnailUrl) {
+                // Show thumbnail image
+                document.getElementById('thumbnailImage').src = data.thumbnailUrl;
+                document.getElementById('thumbnailImage').style.display = 'block';
+                document.getElementById('thumbnailMessage').style.display = 'none';
             } else {
-                console.error('Error:', data.error);
+                // Show message indicating no thumbnail yet
+                document.getElementById('thumbnailImage').style.display = 'none';
+                document.getElementById('thumbnailMessage').style.display = 'block';
             }
         })
         .catch(error => console.error('Error:', error));
     });
 
+    // angle rotating generating
     document.getElementById('angleRotatingButton').addEventListener('click', function() {
         const imageSrc = document.getElementById('displayedImage').src;
         const angle = document.getElementById('angleInput').value; // get the user input 
@@ -227,6 +251,8 @@ purpose: cleint-side for image processing
     });
 
 </script>
+
+</body>
 
 </html>
 

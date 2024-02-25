@@ -127,7 +127,6 @@ app.post('/colorToGrey', express.json({limit: '50mb'}), (req, res) => {
     }
 });
 
-
 // right rotating into 90 degree
 app.post('/rightRotating', express.json({limit: '50mb'}), (req, res) => {
     const imageData = req.body.imageData;
@@ -198,10 +197,12 @@ app.post('/generatingThumbnail', express.json({limit: '50mb'}), (req, res) => {
             .resize(200, 200)
             .toBuffer()
             .then(thumbnailBuffer => {
-                // Convert flipped image buffer to Base64
-                const imgBase64 = thumbnailBuffer.toString('base64');
-                const imageSrc = `data:${imageType};base64,${imgBase64}`;
-                res.json({ imageUrl: imageSrc });
+                // Convert thumbnail image buffer to Base64
+                const thumbnailImgBase64 = thumbnailBuffer.toString('base64');
+                const thumbnailImageUrl = `data:${imageType};base64,${thumbnailImgBase64}`;
+
+                // Send the thumbnail image URL back to the client
+                res.json({ thumbnailUrl: thumbnailImageUrl });
             })
             .catch(err => {
                 console.error('Error processing image:', err);
