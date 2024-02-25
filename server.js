@@ -265,6 +265,50 @@ app.post('/angleRotating', express.json({limit: '50mb'}), (req, res) => {
     }
 });
 
+// resizing by user-input
+app.post('/resizing', express.json({limit: '50mb'}), (req, res) => {
+    const imageData = req.body.imageData;
+    const imageType = req.body.imageType;
+    const percentage = parseInt(req.body.percentage, 10);
+    if (imageData) {
+        // Extract the Base64 encoded image data from the imageData string
+        const base64Data = imageData.split(';base64,').pop();
+        const buffer = Buffer.from(base64Data, 'base64');
+
+        // Get original image metadata
+        sharp(buffer)
+            .metadata()
+            .then(metadata => {
+                // keep the ratio of width and hieght
+                // each value being resized by the given percentage
+                const resizeWidth = Math.round(metadata.width * percentage/100);
+                const resizeHeight = Math.round(metadata.height * percentage/100);
+
+                // Rotate the image
+                sharp(buffer)
+                    .resize(resizeWidth, resizeHeight)
+                    .toBuffer()
+                    .then(resizedBuffer => {
+                                // Convert resized image buffer to Base64
+                                const resizedImgBase64 = resizedBuffer.toString('base64');
+                                const resizedImageSrc = `data:${imageType};base64,${resizedImgBase64}`;
+                                res.json({ imageUrl: resizedImageSrc });
+                    })
+                    .catch(err => {
+                        console.error('Error processing image:', err);
+                        res.status(500).send('Error processing image');
+                    });
+            })
+            .catch(err => {
+                console.error('Error processing image:', err);
+                res.status(500).send('Error processing image');
+            });
+        } else {
+        // Handle case where there is no image data in the request
+        res.status(400).json({error: "No image data provided."});
+    }
+});
+
 app.listen(3000, () => console.log('Server Started on http://localhost:3000'));
 
 
