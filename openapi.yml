@@ -1,14 +1,15 @@
 openapi: '3.0.2'
 info:
-  title: IP_API
+  title: CS5200_IP_API_V2
   version: '1.0'
 servers:
   - url: https://localhost:3000
 paths:
-  /resizeUpload:
+  /upload:
     post:
       summary: Upload an image.
       requestBody:
+        required: true
         content:
           multipart/form-data:
             schema:
@@ -25,22 +26,30 @@ paths:
               schema:
                 type: object
                 properties:
-                  imageName:
+                  imageUrl:
                     type: string
-                    example: 
+                    format: uri
+        '400':
+          description: Bad request. No file uploaded.
         '500':
           description: Internal Server Error
 
   /verticalFlip:
-    get:
+    post:
       summary: Flip an image vertically.
-      parameters:
-        - in: query
-          name: imageName
-          schema:
-            type: string
-          required: true
-          description: The name of the image to be flipped.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                imageData:
+                  type: string
+                  description: Base64 encoded image data.
+                imageType:
+                  type: string
+                  description: MIME type of the image.
       responses:
         '200':
           description: Successfully flipped the image vertically.
@@ -49,22 +58,30 @@ paths:
               schema:
                 type: object
                 properties:
-                  verticalFlip:
+                  imageUrl:
                     type: string
-                    example: verti_1611234567890.jpg
+                    format: uri
+        '400':
+          description: Bad request. No image data provided.
         '500':
           description: Internal Server Error
 
   /horizontalFlip:
-    get:
+    post:
       summary: Flip an image horizontally.
-      parameters:
-        - in: query
-          name: imageName
-          schema:
-            type: string
-          required: true
-          description: The name of the image to be flipped.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                imageData:
+                  type: string
+                  description: Base64 encoded image data.
+                imageType:
+                  type: string
+                  description: MIME type of the image.
       responses:
         '200':
           description: Successfully flipped the image horizontally.
@@ -73,23 +90,30 @@ paths:
               schema:
                 type: object
                 properties:
-                  horizontalFlip:
+                  imageUrl:
                     type: string
-                    example: hori_1611234567890.jpg
+                    format: uri
+        '400':
+          description: Bad request. No image data provided.
         '500':
           description: Internal Server Error
 
-
   /leftRotating:
-    get:
+    post:
       summary: Rotate an image -90 degrees.
-      parameters:
-        - in: query
-          name: imageName
-          schema:
-            type: string
-          required: true
-          description: The name of the image to be rotated.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                imageData:
+                  type: string
+                  description: Base64 encoded image data.
+                imageType:
+                  type: string
+                  description: MIME type of the image.
       responses:
         '200':
           description: Successfully rotated the image to the left.
@@ -98,22 +122,30 @@ paths:
               schema:
                 type: object
                 properties:
-                  leftRotated:
+                  imageUrl:
                     type: string
-                    example: left_rotated_1611234567890.jpg
+                    format: uri
+        '400':
+          description: Bad request. No image data provided.
         '500':
           description: Internal Server Error
 
   /rightRotating:
-    get:
+    post:
       summary: Rotate an image +90 degrees.
-      parameters:
-        - in: query
-          name: imageName
-          schema:
-            type: string
-          required: true
-          description: The name of the image to be rotated.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                imageData:
+                  type: string
+                  description: Base64 encoded image data.
+                imageType:
+                  type: string
+                  description: MIME type of the image.
       responses:
         '200':
           description: Successfully rotated the image to the right.
@@ -122,22 +154,30 @@ paths:
               schema:
                 type: object
                 properties:
-                  rightRotated:
+                  imageUrl:
                     type: string
-                    example: right_rotated_1611234567890.jpg
+                    format: uri
+        '400':
+          description: Bad request. No image data provided.
         '500':
           description: Internal Server Error
 
   /generatingThumbnail:
-    get:
+    post:
       summary: Generate a thumbnail for an image.
-      parameters:
-        - in: query
-          name: imageName
-          schema:
-            type: string
-          required: true
-          description: The name of the image to generate a thumbnail for.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                imageData:
+                  type: string
+                  description: Base64 encoded image data.
+                imageType:
+                  type: string
+                  description: MIME type of the image.
       responses:
         '200':
           description: Successfully generated a thumbnail.
@@ -146,8 +186,112 @@ paths:
               schema:
                 type: object
                 properties:
-                  thumbnail:
+                  thumbnailUrl:
                     type: string
-                    example: thumbnail_1611234567890.jpg
+                    format: uri
+        '400':
+          description: Bad request. No image data provided.
+        '500':
+          description: Internal Server Error
+  
+  /colorToGrey:
+    post:
+      summary: Convert an image to greyscale.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                imageData:
+                  type: string
+                  description: Base64 encoded image data.
+                imageType:
+                  type: string
+                  description: MIME type of the image.
+      responses:
+        '200':
+          description: Successfully converted the image to greyscale.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  imageUrl:
+                    type: string
+                    format: uri
+        '400':
+          description: Bad request. No image data provided.
+        '500':
+          description: Internal Server Error
+
+  /angleRotating:
+    post:
+      summary: Rotate an image by a user-specified angle.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                imageData:
+                  type: string
+                  description: Base64 encoded image data.
+                imageType:
+                  type: string
+                  description: MIME type of the image.
+                rotationAngle:
+                  type: integer
+                  description: The angle in degrees by which to rotate the image.
+      responses:
+        '200':
+          description: Successfully rotated the image by the specified angle.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  imageUrl:
+                    type: string
+                    format: uri
+        '400':
+          description: Bad request. No image data provided.
+        '500':
+          description: Internal Server Error
+
+  /resizing:
+    post:
+      summary: Resize an image by a user-specified percentage.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                imageData:
+                  type: string
+                  description: Base64 encoded image data.
+                imageType:
+                  type: string
+                  description: MIME type of the image.
+                percentage:
+                  type: integer
+                  description: The percentage by which to resize the image.
+      responses:
+        '200':
+          description: Successfully resized the image by the specified percentage.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  imageUrl:
+                    type: string
+                    format: uri
+        '400':
+          description: Bad request. No image data provided.
         '500':
           description: Internal Server Error
