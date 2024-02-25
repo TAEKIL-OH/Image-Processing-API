@@ -223,19 +223,41 @@ app.post('/angleRotating', express.json({limit: '50mb'}), (req, res) => {
         const base64Data = imageData.split(';base64,').pop();
         const buffer = Buffer.from(base64Data, 'base64');
 
+        // Get original image metadata
         sharp(buffer)
-            .rotate(rotationAngle)
-            .toBuffer()
-            .then(angleRotatedBuffer => {
-                // Convert flipped image buffer to Base64
-                const imgBase64 = angleRotatedBuffer.toString('base64');
-                const imageSrc = `data:${imageType};base64,${imgBase64}`;
-                res.json({ imageUrl: imageSrc });
+            .metadata()
+            .then(metadata => {
+                const originalWidth = metadata.width;
+                const originalHeight = metadata.height;
+
+                // Rotate the image
+                sharp(buffer)
+                    .rotate(rotationAngle)
+                    .toBuffer()
+                    .then(angleRotatedBuffer => {
+                        sharp(angleRotatedBuffer) // Chain another sharp operation
+                            .resize({ fit: 'inside', width: originalWidth, height: originalHeight })
+                            .toBuffer()
+                            .then(resizedBuffer => {
+                                // Convert resized image buffer to Base64
+                                const imgBase64 = resizedBuffer.toString('base64');
+                                const imageSrc = `data:${imageType};base64,${imgBase64}`;
+                                res.json({ imageUrl: imageSrc });
+                            })
+                            .catch(err => {
+                                console.error('Error processing image:', err);
+                                res.status(500).send('Error processing image');
+                            });
+                    })
+                    .catch(err => {
+                        console.error('Error processing image:', err);
+                        res.status(500).send('Error processing image');
+                    });
             })
             .catch(err => {
                 console.error('Error processing image:', err);
                 res.status(500).send('Error processing image');
-            });
+        });
     } else {
         // Handle case where there is no image data in the request
         res.status(400).json({error: "No image data provided."});
