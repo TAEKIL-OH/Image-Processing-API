@@ -1,5 +1,5 @@
 // Taekil Oh
-// FEb 20 2024
+// FEB 20 2024
 // server.js
 // purpose: server-side for image processing functions for RPC calls
 
@@ -8,6 +8,8 @@ const multer = require('multer');
 const sharp = require('sharp');
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
+const {verticalFlip, horizontalFlip, colorToGrey, rightRotating, 
+    leftRotating, generatingThumbnail, angleRotating, resizing} = require('./imageOperations');
 
 const app = express();
 const storage = multer.memoryStorage();
@@ -31,6 +33,21 @@ app.get('/', (req, res) => {
 });
 
 // adding the operation to run selected methods and return the image. 
+app.post('/applyOperations', express.json({limit: '50mb'}), (req, res) => {
+    const imageData = req.body.imageData;
+    const imageType = req.body.imageType;
+    const operations = req.body.operations;
+
+    // based on the operations order operating the processing methods. 
+    if(!imageData) {
+        return res.status(400).json({error: "No image data provided"});
+    }
+
+    // Extract the base 64
+    const base64Data = imageData.split(';base64,').pop();
+    const buffer = Buffer.from(base64Data, 'base64');
+    
+});
 
 // handle image upload and convert to Base64
 app.post('/upload', upload.single('image'), (req, res) => {
@@ -50,22 +67,11 @@ app.post('/verticalFlip', express.json({limit: '50mb'}), (req, res) => {
     const imageData = req.body.imageData;
     const imageType = req.body.imageType;
     if (imageData) {
-        // Extract the Base64 encoded image data from the imageData string
-        const base64Data = imageData.split(';base64,').pop();
-        const buffer = Buffer.from(base64Data, 'base64');
-
-        sharp(buffer)
-            .flip()
-            .toBuffer()
-            .then(verticalFlippedBuffer => {
-                // Convert flipped image buffer to Base64
-                const imgBase64 = verticalFlippedBuffer.toString('base64');
-                const imageSrc = `data:${imageType};base64,${imgBase64}`;
-                res.json({ imageUrl: imageSrc });
-            })
-            .catch(err => {
-                console.error('Error processing image:', err);
-                res.status(500).send('Error processing image');
+        verticalFlip(imageData, imageType)
+        .then(imageSrc => res.json({ imageUrl: imageSrc }))
+        .catch(err => {
+            console.error('Error processing image:', err);
+            res.status(500).send('Error processing image');
             });
     } else {
         // Handle case where there is no image data in the request
@@ -78,22 +84,11 @@ app.post('/horizontalFlip', express.json({limit: '50mb'}), (req, res) => {
     const imageData = req.body.imageData;
     const imageType = req.body.imageType;
     if (imageData) {
-        // Extract the Base64 encoded image data from the imageData string
-        const base64Data = imageData.split(';base64,').pop();
-        const buffer = Buffer.from(base64Data, 'base64');
-
-        sharp(buffer)
-            .flop()
-            .toBuffer()
-            .then(horizontalFlippedBuffer => {
-                // Convert flipped image buffer to Base64
-                const imgBase64 = horizontalFlippedBuffer.toString('base64');
-                const imageSrc = `data:${imageType};base64,${imgBase64}`;
-                res.json({ imageUrl: imageSrc });
-            })
-            .catch(err => {
-                console.error('Error processing image:', err);
-                res.status(500).send('Error processing image');
+        horizontalFlip(imageData, imageType)
+        .then(imageSrc => res.json({ imageUrl: imageSrc }))
+        .catch(err => {
+            console.error('Error processing image:', err);
+            res.status(500).send('Error processing image');
             });
     } else {
         // Handle case where there is no image data in the request
@@ -106,22 +101,11 @@ app.post('/colorToGrey', express.json({limit: '50mb'}), (req, res) => {
     const imageData = req.body.imageData;
     const imageType = req.body.imageType;
     if (imageData) {
-        // Extract the Base64 encoded image data from the imageData string
-        const base64Data = imageData.split(';base64,').pop();
-        const buffer = Buffer.from(base64Data, 'base64');
-
-        sharp(buffer)
-            .greyscale()
-            .toBuffer()
-            .then(greyBuffer => {
-                // Convert flipped image buffer to Base64
-                const imgBase64 = greyBuffer.toString('base64');
-                const imageSrc = `data:${imageType};base64,${imgBase64}`;
-                res.json({ imageUrl: imageSrc });
-            })
-            .catch(err => {
-                console.error('Error processing image:', err);
-                res.status(500).send('Error processing image');
+        colorToGrey(imageData, imageType)
+        .then(imageSrc => res.json({imageUrl: imageSrc}))
+        .catch(err => {
+            console.error('Error processing image:', err);
+            res.status(500).send('Error processing image');
             });
     } else {
         // Handle case where there is no image data in the request
@@ -134,22 +118,11 @@ app.post('/rightRotating', express.json({limit: '50mb'}), (req, res) => {
     const imageData = req.body.imageData;
     const imageType = req.body.imageType;
     if (imageData) {
-        // Extract the Base64 encoded image data from the imageData string
-        const base64Data = imageData.split(';base64,').pop();
-        const buffer = Buffer.from(base64Data, 'base64');
-
-        sharp(buffer)
-            .rotate(90) // rorate the image 90 degrees to the right
-            .toBuffer()
-            .then(rightRotatedBuffer => {
-                // Convert flipped image buffer to Base64
-                const imgBase64 = rightRotatedBuffer.toString('base64');
-                const imageSrc = `data:${imageType};base64,${imgBase64}`;
-                res.json({ imageUrl: imageSrc });
-            })
-            .catch(err => {
-                console.error('Error processing image:', err);
-                res.status(500).send('Error processing image');
+        rightRotating(imageData, imageType)
+        .then(imageSrc => res.json({imageUrl: imageSrc}))
+        .catch(err => {
+            console.error('Error processing image:', err);
+            res.status(500).send('Error processing image');
             });
     } else {
         // Handle case where there is no image data in the request
@@ -162,22 +135,11 @@ app.post('/leftRotating', express.json({limit: '50mb'}), (req, res) => {
     const imageData = req.body.imageData;
     const imageType = req.body.imageType;
     if (imageData) {
-        // Extract the Base64 encoded image data from the imageData string
-        const base64Data = imageData.split(';base64,').pop();
-        const buffer = Buffer.from(base64Data, 'base64');
-
-        sharp(buffer)
-            .rotate(-90) // rorate the image 90 degrees to the left
-            .toBuffer()
-            .then(leftRotatedBuffer => {
-                // Convert flipped image buffer to Base64
-                const imgBase64 = leftRotatedBuffer.toString('base64');
-                const imageSrc = `data:${imageType};base64,${imgBase64}`;
-                res.json({ imageUrl: imageSrc });
-            })
-            .catch(err => {
-                console.error('Error processing image:', err);
-                res.status(500).send('Error processing image');
+        leftRotating(imageData, imageType)
+        .then(imageSrc => res.json({imageUrl: imageSrc}))
+        .catch(err => {
+            console.error('Error processing image:', err);
+            res.status(500).send('Error processing image');
             });
     } else {
         // Handle case where there is no image data in the request
@@ -191,24 +153,11 @@ app.post('/generatingThumbnail', express.json({limit: '50mb'}), (req, res) => {
     const imageData = req.body.imageData;
     const imageType = req.body.imageType;
     if (imageData) {
-        // Extract the Base64 encoded image data from the imageData string
-        const base64Data = imageData.split(';base64,').pop();
-        const buffer = Buffer.from(base64Data, 'base64');
-
-        sharp(buffer)
-            .resize(200, 200)
-            .toBuffer()
-            .then(thumbnailBuffer => {
-                // Convert thumbnail image buffer to Base64
-                const thumbnailImgBase64 = thumbnailBuffer.toString('base64');
-                const thumbnailImageUrl = `data:${imageType};base64,${thumbnailImgBase64}`;
-
-                // Send the thumbnail image URL back to the client
-                res.json({ thumbnailUrl: thumbnailImageUrl });
-            })
-            .catch(err => {
-                console.error('Error processing image:', err);
-                res.status(500).send('Error processing image');
+        generatingThumbnail(imageData, imageType)
+        .then(thumbnailImageSrc => res.json({thumbnailImageUrl: thumbnailImageSrc}))
+        .catch(err => {
+            console.error('Error processing image:', err);
+            res.status(500).send('Error processing image');
             });
     } else {
         // Handle case where there is no image data in the request
@@ -221,45 +170,18 @@ app.post('/angleRotating', express.json({limit: '50mb'}), (req, res) => {
     const imageData = req.body.imageData;
     const imageType = req.body.imageType;
     const rotationAngle = parseInt(req.body.rotationAngle, 10);
+    
+    // check if rotationAngle is NaN
+    if(isNaN(rotationAngle)) {
+        return res.status(400).json({error: "Invaild angle"});
+    }
+
     if (imageData) {
-        // Extract the Base64 encoded image data from the imageData string
-        const base64Data = imageData.split(';base64,').pop();
-        const buffer = Buffer.from(base64Data, 'base64');
-
-        // Get original image metadata
-        sharp(buffer)
-            .metadata()
-            .then(metadata => {
-                const originalWidth = metadata.width;
-                const originalHeight = metadata.height;
-
-                // Rotate the image
-                sharp(buffer)
-                    .rotate(rotationAngle)
-                    .toBuffer()
-                    .then(angleRotatedBuffer => {
-                        sharp(angleRotatedBuffer) // Chain another sharp operation
-                            .resize({ fit: 'inside', width: originalWidth, height: originalHeight })
-                            .toBuffer()
-                            .then(resizedBuffer => {
-                                // Convert resized image buffer to Base64
-                                const imgBase64 = resizedBuffer.toString('base64');
-                                const imageSrc = `data:${imageType};base64,${imgBase64}`;
-                                res.json({ imageUrl: imageSrc });
-                            })
-                            .catch(err => {
-                                console.error('Error processing image:', err);
-                                res.status(500).send('Error processing image');
-                            });
-                    })
-                    .catch(err => {
-                        console.error('Error processing image:', err);
-                        res.status(500).send('Error processing image');
-                    });
-            })
-            .catch(err => {
-                console.error('Error processing image:', err);
-                res.status(500).send('Error processing image');
+        angleRotating(imageData, imageType, rotationAngle)
+        .then(imageSrc => res.json({imageUrl: imageSrc}))
+        .catch(err => {
+            console.error('Error porcessing image:', err);
+            res.status(500),send('Error Processing image');
         });
     } else {
         // Handle case where there is no image data in the request
@@ -273,39 +195,13 @@ app.post('/resizing', express.json({limit: '50mb'}), (req, res) => {
     const imageType = req.body.imageType;
     const percentage = parseInt(req.body.percentage, 10);
     if (imageData) {
-        // Extract the Base64 encoded image data from the imageData string
-        const base64Data = imageData.split(';base64,').pop();
-        const buffer = Buffer.from(base64Data, 'base64');
-
-        // Get original image metadata
-        sharp(buffer)
-            .metadata()
-            .then(metadata => {
-                // keep the ratio of width and hieght
-                // each value being resized by the given percentage
-                const resizeWidth = Math.round(metadata.width * percentage/100);
-                const resizeHeight = Math.round(metadata.height * percentage/100);
-
-                // Rotate the image
-                sharp(buffer)
-                    .resize(resizeWidth, resizeHeight)
-                    .toBuffer()
-                    .then(resizedBuffer => {
-                                // Convert resized image buffer to Base64
-                                const resizedImgBase64 = resizedBuffer.toString('base64');
-                                const resizedImageSrc = `data:${imageType};base64,${resizedImgBase64}`;
-                                res.json({ imageUrl: resizedImageSrc });
-                    })
-                    .catch(err => {
-                        console.error('Error processing image:', err);
-                        res.status(500).send('Error processing image');
-                    });
-            })
-            .catch(err => {
-                console.error('Error processing image:', err);
-                res.status(500).send('Error processing image');
-            });
-        } else {
+        resizing(imageData, imageType, percentage)
+        .then(resizedImageSrc => res.json({imageUrl: resizedImageSrc }))
+        .catch(err => {
+            console.error('Error processing image:', err);
+            res.status(500).send('Error processing image');
+        });
+    } else {
         // Handle case where there is no image data in the request
         res.status(400).json({error: "No image data provided."});
     }
