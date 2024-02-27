@@ -32,6 +32,30 @@ purpose: cleint-side for image processing
         </div>    
     </div>
 
+    <form id="operationsForm">
+        <input type="checkbox" id="verticalFlip" name="operation" value="verticalFlip">
+        <label for="verticalFlip">Flip Vertically</label><br>
+        <input type="checkbox" id="horizontalFlip" name="operation" value="horizontalFlip">
+        <label for="horizontalFlip">Flip Horizontally</label><br>
+        <input type="checkbox" id="colorGrey" name="operation" value="colorGrey">
+        <label for="colorGrey">Color to Grey</label><br>
+        <input type="checkbox" id="rightRotating" name="operation" value="rightRotating">
+        <label for="rightRotating">right rotating</label><br>
+        <input type="checkbox" id="leftRotating" name="operation" value="leftRotating">
+        <label for="leftRotating">left rotating</label><br>
+        <input type="checkbox" id="angleRotateCheck" name="operation" value="angleRotate">
+        <label for="angleInput">Enter rotation anlge: </label>
+        <input type="number" id="angleInput" name="angle" required>
+        <label for="angleRotateCheck">Rotate by Angle</label><br>
+        <input type="checkbox" id="resizeCheck" name="operation" value="resize">
+        <label for="resizeInput">resizing percentage: </label>
+        <input type="number" id="resizeInput" name="resizing" required>
+        <label for="resizeCheck">Resize by Percentage</label><br>
+        <input type="checkbox" id="thumbnail" name="operation" value="thumbnail">
+        <label for="thumbnail">thumbnail</label><br>
+        <button type="button" id="applyOperationsButton">Apply Selected Operations</button><br><br>
+    </form>
+
     <form id="verticalFlipForm">
         <button type="button" id="verticalFlipButton">Flip in vertical</button>
     </form>

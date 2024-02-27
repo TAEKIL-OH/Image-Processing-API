@@ -30,6 +30,8 @@ app.get('/', (req, res) => {
     res.render('client', {imageSrc:null});
 });
 
+// adding the operation to run selected methods and return the image. 
+
 // handle image upload and convert to Base64
 app.post('/upload', upload.single('image'), (req, res) => {
     if(req.file) {
