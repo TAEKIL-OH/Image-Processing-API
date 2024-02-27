@@ -1,6 +1,6 @@
 <!--
 Taekil Oh
-FEb 20 2024
+FEB 20 2024
 client.ejs
 purpose: cleint-side for image processing
 -->
@@ -13,17 +13,16 @@ purpose: cleint-side for image processing
 </head>
 
 <body>
-    <h2>Upload Image</h2>
-
+    <h2> Upload Image </h2>
     <form id="uploadForm" enctype="multipart/form-data">
         <input type="file" name="image" id="imageInput" required>
         <button type="button" id="uploadButton">Apply Image</button>
     </form>
-    
+    <br>
     <!-- Container for images -->
     <div id="imageContainer">
         <!-- Original Image -->
-        <img id="displayedImage" alt="Uploaded Image" style="display:none;">
+        <img id="displayedImage" alt="Uploaded Image" style="display:none;"><br>
 
         <!-- Thumbnail Image (if generated) will be inserted here -->
         <div id="thumbnailContainer">
@@ -31,31 +30,42 @@ purpose: cleint-side for image processing
             <p id="thumbnailMessage" style="display:none;">No thumbnail yet</p>
         </div>    
     </div>
-
+    <br>
+    <h2> Selct Operations </h2>
     <form id="operationsForm">
         <input type="checkbox" id="verticalFlip" name="operation" value="verticalFlip">
         <label for="verticalFlip">Flip Vertically</label><br>
+        
         <input type="checkbox" id="horizontalFlip" name="operation" value="horizontalFlip">
         <label for="horizontalFlip">Flip Horizontally</label><br>
+        
         <input type="checkbox" id="colorGrey" name="operation" value="colorGrey">
         <label for="colorGrey">Color to Grey</label><br>
+        
         <input type="checkbox" id="rightRotating" name="operation" value="rightRotating">
         <label for="rightRotating">right rotating</label><br>
+        
         <input type="checkbox" id="leftRotating" name="operation" value="leftRotating">
         <label for="leftRotating">left rotating</label><br>
+        
         <input type="checkbox" id="angleRotateCheck" name="operation" value="angleRotate">
-        <label for="angleInput">Enter rotation anlge: </label>
-        <input type="number" id="angleInput" name="angle" required>
-        <label for="angleRotateCheck">Rotate by Angle</label><br>
+        <label for="angleInput"> angle Rotating, Enter rotation anlge: </label>
+        
+        <input type="number" id="angleInput_checkBox" name="angle" required>
+        <label for="angleRotateCheck"> degree </label><br>
+        
         <input type="checkbox" id="resizeCheck" name="operation" value="resize">
-        <label for="resizeInput">resizing percentage: </label>
-        <input type="number" id="resizeInput" name="resizing" required>
-        <label for="resizeCheck">Resize by Percentage</label><br>
+        <label for="resizeInput"> percentage resizing, enter the percentage: </label>
+        
+        <input type="number" id="resizeInput_checkBox" name="resizing" required>
+        <label for="resizeCheck"> % resizing </label><br>
+        
         <input type="checkbox" id="thumbnail" name="operation" value="thumbnail">
         <label for="thumbnail">thumbnail</label><br>
-        <button type="button" id="applyOperationsButton">Apply Selected Operations</button><br><br>
+        
+        <button type="button" id="applyOperationsButton">Apply Selected Operations</button><br>
     </form>
-
+    <h2> Operation Testing Section </h2>
     <form id="verticalFlipForm">
         <button type="button" id="verticalFlipButton">Flip in vertical</button>
     </form>
@@ -82,13 +92,13 @@ purpose: cleint-side for image processing
 
     <form id="angleRotatingForm">
         <label for="angleInput">Enter rotation angle:</label>
-        <input type="number" id="angleInput" name="angle" required>
+        <input type="number" id="angleInput_button" name="angle" required>
         <button type="button" id="angleRotatingButton">degree angle Rotating</button>
     </form>
 
     <form id="resizingForm">
         <label for="resizeInput">resizing percentage:</label>
-        <input type="number" id="resizeInput" name="resizing" required>
+        <input type="number" id="resizeInput_button" name="resizing" required>
         <button type="button" id="resizingButton">% resizing</button>
     </form>
 
@@ -97,6 +107,60 @@ purpose: cleint-side for image processing
     </form>
 
 <script>
+
+    // sending the selection to server with single api call. 
+    document.getElementById('applyOperationsButton').addEventListener('click', function() {
+        
+        const imageSrc = document.getElementById('displayedImage').src;
+
+        if (!imageSrc) {
+            alert("Please upload an image first.");
+            return;
+        }
+
+        // collection operations
+        const operations = [];
+        const forms = document.querySelectorAll('#operationsForm input[type="checkbox"]:checked');
+        forms.forEach(form => {
+            const operation = form.value;
+            let param = null;
+
+            switch(operation) {
+                case 'angleRotate':
+                    param = document.getElementById('angleInput').value;
+                    break;
+                case 'resize':
+                    param = document.getElementById('resizeInput').value;
+                    break;
+            }
+
+            operations.push({operation, param});
+
+            // send the operations to the server
+            fetch('/applyOperations', {
+                method: 'POST', 
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({imageData: imageSrc, operations: operations}),
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.imageUrl) {
+                document.getElementById('displayedImage').src = data.imageUrl;
+                // handle displaying the thumbnail if needed
+                if(data.thumbnailImageUrl) {
+                    document.getElementById('thumbnailImage').src = data.thumbnailUrl;
+                    document.getElementById('thumbnailImage').style.display = 'block';
+                    document.getElementById('thumbnailMessage').style.display = 'none';
+                }
+            } else {
+                console.error('Error:', data.error);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
 
     // image uploading
     document.getElementById('uploadButton').addEventListener('click', function() {
@@ -225,7 +289,6 @@ purpose: cleint-side for image processing
     });
 
     // thumbnail generating
-    // thumbnail generating
     document.getElementById('thumbnailingButton').addEventListener('click', function() {
         const imageSrc = document.getElementById('displayedImage').src;
         fetch('/generatingThumbnail', {
@@ -237,9 +300,9 @@ purpose: cleint-side for image processing
         })
         .then(response => response.json())
         .then(data => {
-            if (data.thumbnailUrl) {
+            if (data.thumbnailImageUrl) {
                 // Show thumbnail image
-                document.getElementById('thumbnailImage').src = data.thumbnailUrl;
+                document.getElementById('thumbnailImage').src = data.thumbnailImageUrl;
                 document.getElementById('thumbnailImage').style.display = 'block';
                 document.getElementById('thumbnailMessage').style.display = 'none';
             } else {
@@ -254,7 +317,7 @@ purpose: cleint-side for image processing
     // angle rotating generating
     document.getElementById('angleRotatingButton').addEventListener('click', function() {
         const imageSrc = document.getElementById('displayedImage').src;
-        const angle = document.getElementById('angleInput').value; // get the user input 
+        const angle = document.getElementById('angleInput_button').value; // get the user input 
         fetch('/angleRotating', {
             method: 'POST',
             headers: {
@@ -283,7 +346,7 @@ purpose: cleint-side for image processing
     // resizing
     document.getElementById('resizingButton').addEventListener('click', function() {
         const imageSrc = document.getElementById('displayedImage').src;
-        const sizingPercentage = document.getElementById('resizeInput').value; // get the user input 
+        const sizingPercentage = document.getElementById('resizeInput_button').value; // get the user input 
         
         // validate the input
         if(parseInt(sizingPercentage) < 0) {
