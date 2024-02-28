@@ -33,20 +33,80 @@ app.get('/', (req, res) => {
 });
 
 // adding the operation to run selected methods and return the image. 
-app.post('/applyOperations', express.json({limit: '50mb'}), (req, res) => {
+app.post('/applyOperations', express.json({limit: '50mb'}), async (req, res) => {
     const imageData = req.body.imageData;
     const imageType = req.body.imageType;
     const operations = req.body.operations;
 
     // based on the operations order operating the processing methods. 
     if(!imageData) {
-        return res.status(400).json({error: "No image data provided"});
+        return res.status(400).json({error: "Missing data"});
     }
 
-    // Extract the base 64
-    const base64Data = imageData.split(';base64,').pop();
-    const buffer = Buffer.from(base64Data, 'base64');
-    
+    if(operations.length === 0) {
+        return res.status(400).json({error: "No operation"});
+    }
+
+    try{
+        // start with original imageData
+        let imageSrc = imageData;
+
+        const appliedOperations = new Set();
+
+        for (let op of operations) {
+            if (appliedOperations.has(op.operation)) {
+                continue; // skip the iteration
+            } else {
+                appliedOperations.add(op.operation);
+                switch (op.operation) {
+                    case 'verticalFlip':
+                        imageSrc = await verticalFlip(imageSrc, imageType);
+                        console.log("VerticalFlip Worked");
+                        break;
+                    case 'horizontalFlip':
+                        imageSrc = await horizontalFlip(imageSrc, imageType);
+                        console.log("HorzontalFlip Worked");
+                        break;
+                    case 'colorToGrey':
+                        imageSrc = await colorToGrey(imageSrc, imageType);
+                        console.log("colorToGrey Worked");
+                        break;
+                    case 'rightRotating':
+                        imageSrc = await rightRotating(imageSrc, imageType);
+                        console.log("rightRotating Worked");
+                        break;
+                    case 'leftRotating':
+                        imageSrc = await leftRotating(imageSrc, imageType);
+                        console.log("leftRotating Worked");
+                        break;
+                    case 'angleRotate':
+                        imageSrc = await angleRotating(imageSrc, imageType, op.param.angle);
+                        console.log("angleRotate Worked");
+                        break;
+                    case 'resize':
+                        imageSrc = await resizing(imageSrc, imageType, op.param.percentage);
+                        console.log("resized Worked");  
+                        break;
+                }
+            }
+        }
+
+        const thumbnailOperation = operations.find(op => op.operation === 'thumbnail');
+        if (thumbnailOperation) {
+            const thumbnailImageSrc = await generatingThumbnail(imageData, imageType);
+            console.log("thumbnail Generated");
+            res.json({
+                imageUrl: imageSrc, 
+                thumbnailImageUrl: thumbnailImageSrc,
+            });
+        } else {
+            // if no thumbnail generation, just return the final image URL
+            res.json({imageUrl: imageSrc});
+        }
+    } catch (error) {
+        console.error('Error Applying image operations: ', error);
+        res.status(500).send('Server Error');
+    }
 });
 
 // handle image upload and convert to Base64
@@ -102,7 +162,7 @@ app.post('/colorToGrey', express.json({limit: '50mb'}), (req, res) => {
     const imageType = req.body.imageType;
     if (imageData) {
         colorToGrey(imageData, imageType)
-        .then(imageSrc => res.json({imageUrl: imageSrc}))
+        .then(imageSrc => res.json({ imageUrl: imageSrc}))
         .catch(err => {
             console.error('Error processing image:', err);
             res.status(500).send('Error processing image');
