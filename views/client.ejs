@@ -39,7 +39,7 @@ purpose: cleint-side for image processing
         <input type="checkbox" id="horizontalFlip" name="operation" value="horizontalFlip">
         <label for="horizontalFlip">Flip Horizontally</label><br>
         
-        <input type="checkbox" id="colorGrey" name="operation" value="colorGrey">
+        <input type="checkbox" id="colorGrey" name="operation" value="colorToGrey">
         <label for="colorGrey">Color to Grey</label><br>
         
         <input type="checkbox" id="rightRotating" name="operation" value="rightRotating">
@@ -57,7 +57,7 @@ purpose: cleint-side for image processing
         <input type="checkbox" id="resizeCheck" name="operation" value="resize">
         <label for="resizeInput"> percentage resizing, enter the percentage: </label>
         
-        <input type="number" id="resizeInput_checkBox" name="resizing" required>
+        <input type="number" id="resizeInput_checkBox" name="resizing" required">
         <label for="resizeCheck"> % resizing </label><br>
         
         <input type="checkbox" id="thumbnail" name="operation" value="thumbnail">
@@ -108,60 +108,6 @@ purpose: cleint-side for image processing
 
 <script>
 
-    // sending the selection to server with single api call. 
-    document.getElementById('applyOperationsButton').addEventListener('click', function() {
-        
-        const imageSrc = document.getElementById('displayedImage').src;
-
-        if (!imageSrc) {
-            alert("Please upload an image first.");
-            return;
-        }
-
-        // collection operations
-        const operations = [];
-        const forms = document.querySelectorAll('#operationsForm input[type="checkbox"]:checked');
-        forms.forEach(form => {
-            const operation = form.value;
-            let param = null;
-
-            switch(operation) {
-                case 'angleRotate':
-                    param = document.getElementById('angleInput').value;
-                    break;
-                case 'resize':
-                    param = document.getElementById('resizeInput').value;
-                    break;
-            }
-
-            operations.push({operation, param});
-
-            // send the operations to the server
-            fetch('/applyOperations', {
-                method: 'POST', 
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({imageData: imageSrc, operations: operations}),
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if(data.imageUrl) {
-                document.getElementById('displayedImage').src = data.imageUrl;
-                // handle displaying the thumbnail if needed
-                if(data.thumbnailImageUrl) {
-                    document.getElementById('thumbnailImage').src = data.thumbnailUrl;
-                    document.getElementById('thumbnailImage').style.display = 'block';
-                    document.getElementById('thumbnailMessage').style.display = 'none';
-                }
-            } else {
-                console.error('Error:', data.error);
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    });
-
     // image uploading
     document.getElementById('uploadButton').addEventListener('click', function() {
         var formData = new FormData();
@@ -178,6 +124,67 @@ purpose: cleint-side for image processing
                 document.getElementById('displayedImage').style.display = 'block';
             } else {
                 console.error('Error:', data.error);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+
+    // sending the selection to server with single api call. 
+    document.getElementById('applyOperationsButton').addEventListener('click', function() {
+        
+        const imageSrc = document.getElementById('displayedImage').src;
+
+        if (!imageSrc) {
+            alert("Please upload an image first.");
+            return;
+        }
+
+        // collection operations
+        const operations = [];
+        const forms = document.querySelectorAll('#operationsForm input[type="checkbox"]:checked');
+        
+        forms.forEach(form => {
+            const operation = form.value;
+            let param = null;
+
+            if(operation === 'angleRotate') {
+                param = {angle: parseInt(document.getElementById('angleInput_checkBox').value, 10)};
+
+
+            } else if (operation === 'resize') {
+                param = {percentage: parseInt(document.getElementById('resizeInput_checkBox').value, 10)};
+
+            }
+                    
+            operations.push({operation, param});
+        });
+
+        // send the operations to the server
+        fetch('/applyOperations', {
+            method: 'POST', 
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({imageData: imageSrc, operations: operations}),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.imageUrl) {
+                document.getElementById('displayedImage').src = data.imageUrl;
+            } 
+            else {
+                console.error('Error:', data.error);
+            }
+            
+            if (data.thumbnailImageUrl) {
+                // Show thumbnail image
+                document.getElementById('thumbnailImage').src = data.thumbnailImageUrl;
+                document.getElementById('thumbnailImage').style.display = 'block';
+                document.getElementById('thumbnailMessage').style.display = 'none';
+            } else {
+                // Show message indicating no thumbnail yet
+                document.getElementById('thumbnailImage').style.display = 'none';
+                document.getElementById('thumbnailMessage').style.display = 'block';
             }
         })
         .catch(error => console.error('Error:', error));
