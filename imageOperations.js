@@ -150,6 +150,12 @@ async function angleRotating(imageData, imageType, rotationAngle){
         const base64Data = imageData.split(';base64,').pop();
         const buffer = Buffer.from(base64Data, 'base64');
 
+        if(isNaN(rotationAngle)) {
+            const error = new Error('Angle not Number');
+            console.error('Error processing image: ', error);
+            reject(error);
+        }
+
         // Get original image metadata
         sharp(buffer)
             .metadata()
@@ -193,6 +199,12 @@ async function resizing(imageData, imageType, percentage) {
         // Extract the Base64 encoded image data from the imageData string
         const base64Data = imageData.split(';base64,').pop();
         const buffer = Buffer.from(base64Data, 'base64');
+
+        if(isNaN(percentage) || percentage <= 0) {
+            const error = new Error('No percentage value.');
+            console.error('Error image processing:', error);
+            reject(error);
+        }
 
         sharp(buffer)
         .metadata()
