@@ -176,9 +176,10 @@ purpose: cleint-side for image processing
                 console.error('Error:', data.error);
             }
             
-            if (data.thumbnailImageUrl) {
+            // delay issue
+            if (data.thumbnailImageUrl_Ops) {
                 // Show thumbnail image
-                document.getElementById('thumbnailImage').src = data.thumbnailImageUrl;
+                document.getElementById('thumbnailImage').src = data.thumbnailImageUrl_Ops;
                 document.getElementById('thumbnailImage').style.display = 'block';
                 document.getElementById('thumbnailMessage').style.display = 'none';
             } else {

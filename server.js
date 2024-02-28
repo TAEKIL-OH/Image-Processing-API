@@ -93,11 +93,11 @@ app.post('/applyOperations', express.json({limit: '50mb'}), async (req, res) => 
 
         const thumbnailOperation = operations.find(op => op.operation === 'thumbnail');
         if (thumbnailOperation) {
-            const thumbnailImageSrc = await generatingThumbnail(imageData, imageType);
+            const thumbnailImageSrc = await generatingThumbnail(imageSrc, imageType);
             console.log("thumbnail Generated");
             res.json({
                 imageUrl: imageSrc, 
-                thumbnailImageUrl: thumbnailImageSrc,
+                thumbnailImageUrl_Ops: thumbnailImageSrc,
             });
         } else {
             // if no thumbnail generation, just return the final image URL
