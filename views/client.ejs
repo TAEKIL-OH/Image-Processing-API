@@ -347,10 +347,6 @@ purpose: cleint-side for image processing
         .catch(error => console.error('Error:', error));
     });
 
-    document.getElementById('openAPIbutton').addEventListener('click', function() {
-    window.open('http://localhost:3000/openapi-docs', '_blank');
-    });
-
     // resizing
     document.getElementById('resizingButton').addEventListener('click', function() {
         const imageSrc = document.getElementById('displayedImage').src;
