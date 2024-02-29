@@ -69,41 +69,6 @@ purpose: cleint-side for image processing
         <button type="button" id="userOperationListButton">user's sequence applying </button><br>
     </div>
 
-    <h2> Selct Operations </h2>
-    <form id="operationsForm">
-        <input type="checkbox" id="verticalFlip" name="operation" value="verticalFlip">
-        <label for="verticalFlip">Flip Vertically</label><br>
-        
-        <input type="checkbox" id="horizontalFlip" name="operation" value="horizontalFlip">
-        <label for="horizontalFlip">Flip Horizontally</label><br>
-        
-        <input type="checkbox" id="colorGrey" name="operation" value="colorToGrey">
-        <label for="colorGrey">Color to Grey</label><br>
-        
-        <input type="checkbox" id="rightRotating" name="operation" value="rightRotating">
-        <label for="rightRotating">right rotating</label><br>
-        
-        <input type="checkbox" id="leftRotating" name="operation" value="leftRotating">
-        <label for="leftRotating">left rotating</label><br>
-        
-        <input type="checkbox" id="angleRotateCheck" name="operation" value="angleRotate">
-        <label for="angleInput"> angle Rotating, Enter rotation anlge: </label>
-        
-        <input type="number" id="angleInput_checkBox" name="angle" required>
-        <label for="angleRotateCheck"> degree </label><br>
-        
-        <input type="checkbox" id="resizeCheck" name="operation" value="resize">
-        <label for="resizeInput"> percentage resizing, enter the percentage: </label>
-        
-        <input type="number" id="resizeInput_checkBox" name="resizing" required">
-        <label for="resizeCheck"> % resizing </label><br>
-        
-        <input type="checkbox" id="thumbnail" name="operation" value="thumbnail">
-        <label for="thumbnail">thumbnail</label><br>
-        
-        <button type="button" id="applyOperationsButton">Apply Selected Operations</button><br>
-    </form>
-
     <h2> Operation Testing Section </h2>
     <form id="verticalFlipForm">
         <button type="button" id="verticalFlipButton">Flip in vertical</button>
@@ -241,82 +206,30 @@ purpose: cleint-side for image processing
             else {
                 console.error('Error:', data.error);
             }
-            
-            // delay issue
-            if (data.thumbnailImageUrl_Ops) {
-                // Show thumbnail image
-                document.getElementById('thumbnailImage').src = data.thumbnailImageUrl_Ops;
-                document.getElementById('thumbnailImage').style.display = 'block';
-                document.getElementById('thumbnailMessage').style.display = 'none';
+
+            // handle multiple thumbnails
+            const thumbnailContainer = document.getElementById('thumbnailContainer');
+
+            // create existing thumbnails
+            thumbnailContainer.innerHTML = ''; 
+
+            // instead of single thumbnail maximum number of thumbnail? 3 to 5?
+            // get thumbnail array and display some where 
+            if (data.thumbnailImageUrl_Ops && data.thumbnailImageUrl_Ops.length > 0) {
+                // iterate over the thumbnail url array
+                data.thumbnailImageUrl_Ops.forEach(thumbnailImageUrl => {
+                    const imageElement = document.createElement('img');
+                    imageElement.src = thumbnailImageUrl;
+                    imageElement.alt = '"thumbnail Image';
+                    imageElement.style.display = 'block';
+                    thumbnailContainer.appendChild(imageElement);
+                });
             } else {
-                // Show message indicating no thumbnail yet
-                document.getElementById('thumbnailImage').style.display = 'none';
-                document.getElementById('thumbnailMessage').style.display = 'block';
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    });
-
-    // sending the selection to server with single api call. 
-    document.getElementById('applyOperationsButton').addEventListener('click', function() {
-        
-        const imageSrc = document.getElementById('displayedImage').src;
-
-        if (!imageSrc) {
-            alert("Please upload an image first.");
-            return;
-        }
-
-        // collect the order of sequence
-
-
-        // collect the number for operating times (multiple operation is possible). 
-
-        // collection operations
-        const operations = [];
-
-        forms.forEach(form => {
-            const operation = form.value;
-            let param = null;
-
-            // pass the sequence and times
-
-            if(operation === 'angleRotate') {
-                param = {angle: parseInt(document.getElementById('angleInput_checkBox').value, 10)};
-            } else if (operation === 'resize') {
-                param = {percentage: parseInt(document.getElementById('resizeInput_checkBox').value, 10)};
-            }
-            
-            operations.push({operation, param});
-        });
-
-        // send the operations to the server
-        fetch('/applyOperations', {
-            method: 'POST', 
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({imageData: imageSrc, operations: operations}),
-        })
-        .then(response => response.json())
-        .then(data => {
-            if(data.imageUrl) {
-                document.getElementById('displayedImage').src = data.imageUrl;
-            } 
-            else {
-                console.error('Error:', data.error);
-            }
-            
-            // delay issue
-            if (data.thumbnailImageUrl_Ops) {
-                // Show thumbnail image
-                document.getElementById('thumbnailImage').src = data.thumbnailImageUrl_Ops;
-                document.getElementById('thumbnailImage').style.display = 'block';
-                document.getElementById('thumbnailMessage').style.display = 'none';
-            } else {
-                // Show message indicating no thumbnail yet
-                document.getElementById('thumbnailImage').style.display = 'none';
-                document.getElementById('thumbnailMessage').style.display = 'block';
+                // if no thumbnails were returned, optionally handle. 
+                // Show message indicating no thumbnails yet
+                const noThumbnailMsg = document.createElement('p');
+                noThumbnailMsg.textContent = 'No thumbnails generated';
+                thumbnailContainer.appendChild(noThumbnailMsg);
             }
         })
         .catch(error => console.error('Error:', error));
