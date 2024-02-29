@@ -5,7 +5,7 @@
 
 const express = require('express');
 const multer = require('multer');
-const sharp = require('sharp');
+// const sharp = require('sharp');
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
 const {verticalFlip, horizontalFlip, colorToGrey, rightRotating, 
@@ -44,14 +44,15 @@ app.post('/applyOperations', express.json({limit: '50mb'}), async (req, res) => 
     if(!imageData) {
         return res.status(400).json({error: "Missing data"});
     }
-
     if(operations.length === 0) {
         return res.status(400).json({error: "No operation"});
     }
-    
     try{
         // start with original imageData
         let imageSrc = imageData;
+
+        // create thumbnail list to send
+        let thumbnailImageArray = [];
 
         for (let op of operations) {
             switch (op.operation) {
@@ -86,22 +87,19 @@ app.post('/applyOperations', express.json({limit: '50mb'}), async (req, res) => 
                 case 'thumbnail':
                     const thumbnailImageSrc = await generatingThumbnail(imageSrc, imageType);
                     console.log("thumbnail Generated");
+                    // append to the thumbnail array
+                    thumbnailImageArray.push(thumbnailImageSrc);
+                    break;
             }
         }
-        
-
-        // how to send multiple generated thumbnails? 
-        
-        // given the restiction?
-
-        // because the size of the data -> maximum is 3 images for thumbnail
 
         const thumbnailOperation = operations.find(op => op.operation === 'thumbnail');
         
         if (thumbnailOperation) {           
             res.json({
                 imageUrl: imageSrc, 
-                thumbnailImageUrl_Ops: thumbnailImageSrc,
+                // send the tumbnail array
+                thumbnailImageUrl_Ops: thumbnailImageArray,
             });
         } else {
             // if no thumbnail generation, just return the final image URL
