@@ -31,6 +31,44 @@ purpose: cleint-side for image processing
         </div>    
     </div>
     <br>
+
+    <h2> Operation Box </h2>
+    <h3>----------------------------------</h3>
+    <!-- Container for displaying selected operations -->
+    <div id="selectedOperationsContainer"></div>
+    <!-- List of operations -->
+    <div id="operationsList">
+        <h3>----------------------------------</h3>
+        <h3> Click "+" and add the operations </h3>
+        <div>
+            <span class="add-operation" data-operation="verticalFlip">+</span> Flip Vertically
+        </div>
+        <div>
+            <span class="add-operation" data-operation="horizontalFlip">+</span> Flip Horizontally
+        </div>
+        <div>
+            <span class="add-operation" data-operation="colorToGrey">+</span> Convert to Grey
+        </div>
+        <div>
+            <span class="add-operation" data-operation="rightRotating">+</span> rotating in right
+        </div>
+        <div>
+            <span class="add-operation" data-operation="leftRotating">+</span> rotating in left
+        </div>
+        <div>
+            <span class="add-operation" data-operation="angleRotate">+</span> Angle Rotating
+            <input type="number" class="operation-input" data-operation="angleRotate" placeholder="Angle in degrees">
+        </div>
+        <div>
+            <span class="add-operation" data-operation="resize">+</span> Percentage Resize
+            <input type="number" class="operation-input" data-operation="resize" placeholder="Resize percentage">
+        </div>        
+        <div>
+            <span class="add-operation" data-operation="thumbnail">+</span> thumbnail
+        </div>
+        <button type="button" id="userOperationListButton">user's sequence applying </button><br>
+    </div>
+
     <h2> Selct Operations </h2>
     <form id="operationsForm">
         <input type="checkbox" id="verticalFlip" name="operation" value="verticalFlip">
@@ -65,6 +103,7 @@ purpose: cleint-side for image processing
         
         <button type="button" id="applyOperationsButton">Apply Selected Operations</button><br>
     </form>
+
     <h2> Operation Testing Section </h2>
     <form id="verticalFlipForm">
         <button type="button" id="verticalFlipButton">Flip in vertical</button>
@@ -107,6 +146,33 @@ purpose: cleint-side for image processing
     </form>
 
 <script>
+    // dynamic input box
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.add-operation').forEach(item => {
+            item.addEventListener('click', function() {
+                const operation = this.getAttribute('data-operation');
+                // Find any associated input value
+                const inputField = document.querySelector(`.operation-input[data-operation="${operation}"]`);
+
+                if(operation === "angleRotate" && !inputField.value) {
+                    alert (`Please enter a value for ${operation} before adding`);   
+                }
+                else if (operation === "resize" && !inputField.value) {
+                    alert(`Please enter a value for ${operation} before adding`);
+                } else {
+                    const value = inputField ? inputField.value : '';
+                    addOperationToList(operation, value);
+                }
+            });
+        });
+
+        // Function to add operation and input value to the list
+        function addOperationToList(operation, value = '') {
+            const operationElement = document.createElement('div');
+            operationElement.textContent = `${operation} ${value ? `: ${value}` : ''}`;
+            document.getElementById('selectedOperationsContainer').appendChild(operationElement);
+        }
+    });
 
     // image uploading
     document.getElementById('uploadButton').addEventListener('click', function() {
@@ -129,6 +195,68 @@ purpose: cleint-side for image processing
         .catch(error => console.error('Error:', error));
     });
 
+    // sending the selection to server with single api call.
+    // the operation list in the sequence by user 
+    // multiple operations also possible.  
+    document.getElementById('userOperationListButton').addEventListener('click', function() {
+        
+        const imageSrc = document.getElementById('displayedImage').src;
+
+        if (!imageSrc) {
+            alert("Please upload an image first.");
+            return;
+        }
+
+        const operationElements = document.getElementById('selectedOperationsContainer').children;
+        const operations = Array.from(operationElements).map(element => {
+            const text = element.textContent;
+            const [operation, paramText] = text.split(':').map(part => part.trim());
+            let param = null;
+
+            if(operation === 'angleRotate') {
+                param = {angle: parseInt(paramText, 10)};
+            } else if (operation === 'resize') {
+                param = {percentage: parseInt(paramText, 10)};
+            }
+
+            return param ? {operation, param } : { operation };
+        });
+
+        // test flag
+        console.log("before fetch" ,operations);
+
+        // send the operations to the server
+        fetch('/applyOperations', {
+            method: 'POST', 
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({imageData: imageSrc, operations: operations}),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.imageUrl) {
+                document.getElementById('displayedImage').src = data.imageUrl;
+            } 
+            else {
+                console.error('Error:', data.error);
+            }
+            
+            // delay issue
+            if (data.thumbnailImageUrl_Ops) {
+                // Show thumbnail image
+                document.getElementById('thumbnailImage').src = data.thumbnailImageUrl_Ops;
+                document.getElementById('thumbnailImage').style.display = 'block';
+                document.getElementById('thumbnailMessage').style.display = 'none';
+            } else {
+                // Show message indicating no thumbnail yet
+                document.getElementById('thumbnailImage').style.display = 'none';
+                document.getElementById('thumbnailMessage').style.display = 'block';
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+
     // sending the selection to server with single api call. 
     document.getElementById('applyOperationsButton').addEventListener('click', function() {
         
@@ -139,23 +267,26 @@ purpose: cleint-side for image processing
             return;
         }
 
+        // collect the order of sequence
+
+
+        // collect the number for operating times (multiple operation is possible). 
+
         // collection operations
         const operations = [];
-        const forms = document.querySelectorAll('#operationsForm input[type="checkbox"]:checked');
-        
+
         forms.forEach(form => {
             const operation = form.value;
             let param = null;
 
+            // pass the sequence and times
+
             if(operation === 'angleRotate') {
                 param = {angle: parseInt(document.getElementById('angleInput_checkBox').value, 10)};
-
-
             } else if (operation === 'resize') {
                 param = {percentage: parseInt(document.getElementById('resizeInput_checkBox').value, 10)};
-
             }
-                    
+            
             operations.push({operation, param});
         });
 
