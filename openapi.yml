@@ -72,7 +72,9 @@ paths:
                   imageUrl:
                     type: string
                   thumbnailImageUrl_Ops:
-                    type: string
+                    type: array
+                    items: 
+                      type: string
         400:
           description: Missing data or no operation specified.
         500:
