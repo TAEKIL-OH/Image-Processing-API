@@ -2,8 +2,9 @@
 // Feb 27th 2024
 // imageOperations.js
 // purpose: functions for image operations
-// The imageData parameter expects a Base64 encoded string of the image, typically in the format 'data:[<MIME-type>];base64,[<base64-data>].
-The imageType should be a valid MIME type of the image (e.g., 'image/jpeg', 'image/png').
+// The imageData parameter expects a Base64 encoded string of the image, 
+// typically in the format 'data:[<MIME-type>];base64,[<base64-data>].
+// The imageType should be a valid MIME type of the image (e.g., 'image/jpeg', 'image/png').
 
 const sharp = require('sharp');
 
