@@ -2,11 +2,22 @@
 // Feb 27th 2024
 // imageOperations.js
 // purpose: functions for image operations
+// The imageData parameter expects a Base64 encoded string of the image, typically in the format 'data:[<MIME-type>];base64,[<base64-data>].
+The imageType should be a valid MIME type of the image (e.g., 'image/jpeg', 'image/png').
 
 const sharp = require('sharp');
 
 // vertical flip
 async function verticalFlip(imageData, imageType){
+    /*
+    verticalFlip(imageData, imageType)
+    Purpose: Flips the image vertically.
+    Parameters:
+        imageData: Base64 encoded string of the image.
+        imageType: MIME type of the image.
+    Returns: A Promise that resolves to the Base64 encoded string 
+    of the vertically flipped image.
+    */
     return new Promise((resolve, reject) => {
         // Extract the Base64 encoded image data from the imageData string
         const base64Data = imageData.split(';base64,').pop();
@@ -30,6 +41,13 @@ async function verticalFlip(imageData, imageType){
 
 // horizontal flip
 async function horizontalFlip(imageData, imageType){
+    /*
+    horizontalFlip(imageData, imageType)
+    Purpose: Flips the image horizontally.
+    Parameters: Same as verticalFlip.
+    Returns: A Promise that resolves to the Base64 encoded 
+    string of the horizontally flipped image.
+    */
     return new Promise((resolve, reject) => {
         // Extract the Base64 encoded image data from the imageData string
         const base64Data = imageData.split(';base64,').pop();
@@ -53,6 +71,13 @@ async function horizontalFlip(imageData, imageType){
 
 // Grey coloring
 async function colorToGrey(imageData, imageType){
+    /*
+    colorToGrey(imageData, imageType)
+    Purpose: Converts the image to grayscale.
+    Parameters: Same as verticalFlip.
+    Returns: A Promise that resolves to the Base64 encoded string 
+    of the grayscale image.
+    */
     return new Promise((resolve, reject) => {
         const base64Data = imageData.split(';base64,').pop();
         const buffer = Buffer.from(base64Data, 'base64');
@@ -75,6 +100,13 @@ async function colorToGrey(imageData, imageType){
 
 // right rotating into 90 degree
 async function rightRotating(imageData, imageType){
+    /*
+    rightRotating(imageData, imageType)
+    Purpose: Rotates the image 90 degrees to the right.
+    Parameters: Same as verticalFlip.
+    Returns: A Promise that resolves to the Base64 encoded 
+    string of the right-rotated image.
+    */
     return new Promise((resolve, reject) => {
         const base64Data = imageData.split(';base64,').pop();
         const buffer = Buffer.from(base64Data, 'base64');
@@ -97,6 +129,13 @@ async function rightRotating(imageData, imageType){
 
 // left rotating into 90 degree
 async function leftRotating(imageData, imageType){
+    /*
+    leftRotating(imageData, imageType)
+    Purpose: Rotates the image 90 degrees to the left.
+    Parameters: Same as verticalFlip.
+    Returns: A Promise that resolves to the Base64 encoded string 
+    of the left-rotated image.
+    */
     return new Promise((resolve, reject) => {
         const base64Data = imageData.split(';base64,').pop();
         const buffer = Buffer.from(base64Data, 'base64');
@@ -120,6 +159,13 @@ async function leftRotating(imageData, imageType){
 // Generating thumbnail
 // thumbnail size: 200 * 200 
 async function generatingThumbnail(imageData, imageType){
+    /*
+    generatingThumbnail(imageData, imageType)
+    Purpose: Generates a thumbnail of the image with dimensions 200x200 pixels.
+    Parameters: Same as verticalFlip.
+    Returns: A Promise that resolves to the Base64 encoded string of 
+    the thumbnail image.
+    */
     return new Promise((resolve, reject) => {
         // Extract the Base64 encoded image data from the imageData string
         const base64Data = imageData.split(';base64,').pop();
@@ -145,6 +191,15 @@ async function generatingThumbnail(imageData, imageType){
 
 // rotating in user-input angle
 async function angleRotating(imageData, imageType, rotationAngle){
+    /*
+    angleRotating(imageData, imageType, rotationAngle)
+    Purpose: Rotates the image by a specified angle.
+    Parameters:
+        imageData and imageType: Same as above.
+        rotationAngle: The angle in degrees to rotate the image.
+    Returns: A Promise that resolves to the Base64 encoded string of the rotated
+    image.
+     */
     return new Promise((resolve, reject) => {
         // Extract the Base64 encoded image data from the imageData string
         const base64Data = imageData.split(';base64,').pop();
@@ -195,6 +250,15 @@ async function angleRotating(imageData, imageType, rotationAngle){
 
 // resizing by user-input
 async function resizing(imageData, imageType, percentage) {
+    /*
+    resizing(imageData, imageType, percentage)
+    Purpose: Resizes the image by a specified percentage while keeping the aspect ratio.
+    Parameters:
+        imageData and imageType: Same as above.
+        percentage: The percentage to resize the image.
+        Returns: A Promise that resolves to the Base64 encoded string of 
+        the resized image.
+     */
     return new Promise((resolve, reject) => {
         // Extract the Base64 encoded image data from the imageData string
         const base64Data = imageData.split(';base64,').pop();
