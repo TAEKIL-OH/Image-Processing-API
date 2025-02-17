@@ -15,8 +15,7 @@ memory storage to temporarily save
 image buffers, capped at 1024 * 1024 pixels.
 For more detailed information, including access to our project's source code, 
 documentation, and implementation 
-details, please visit the GitHub repository.
-https://github.com/TAEKIL-OH/cs5200_ip_api_V2
+details, please visit the GitHub repository.(https://github.com/TAEKIL-OH/Image-Processing-API/blob/main/README.md)
 Contact Information is toh3@seattleu.edu
 ## Technologies
 Server Setup and Libraries are Express.js, Multer, Sharp, and Swagger UI Express &YAMLjs. 
